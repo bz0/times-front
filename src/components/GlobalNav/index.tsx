@@ -7,7 +7,7 @@ import axios from 'axios'
 import { parseCookies } from 'nookies'
 
 const login = async () => {
-  const { data } = await axios.get(`https://localhost/api/login/github`);
+  const { data } = await axios.get(`https://` + process.env.NEXT_PUBLIC_API_DOMAIN + `/api/login/github`);
   window.location.href = data.redirect_url;
 }
 
@@ -24,7 +24,7 @@ export default function GlobalNav() {
     
       if ("api_token" in cookies)
       {
-        res = axios.get(`https://localhost/api/me`, {
+        res = axios.get(`https://` + process.env.NEXT_PUBLIC_API_DOMAIN + `/api/me`, {
           headers: {
             'Authorization' : 'Bearer ' + cookies['api_token']
           },
