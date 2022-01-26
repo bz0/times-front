@@ -16,7 +16,9 @@ const POSTS_QUERY = gql`
         id
         user_id
         content
+        created_at
         user {
+          name
           github_id
           avatar_url
           bio
@@ -33,7 +35,9 @@ export interface Post {
   id: string;
   user_id: string;
   content: string;
+  created_at: string;
   user: {
+    name: string;
     github_id: string;
     avatar_url: string;
     bio: string;
@@ -96,19 +100,18 @@ const Home: NextPage = () => {
                 <div>
                   {posts ? posts.map((post:Post, index:number) => (
                     <div className="px-4 py-5 sm:px-6 flex justify-start" key={index}>
-                      <div className="text-sm font-medium text-gray-500">
+                      <div className="text-sm font-medium text-gray-500 w-1/12">
                         <img
-                          className="h-8 w-8 rounded-full"
                           src={post.user.avatar_url}
-                          alt={post.user.github_id}
+                          className="w-10 rounded-full"
                         />
                       </div>
-                      <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 ml-10">
+                      <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 w-11/12">
                         <div className="text-sm text-gray-900">
-                          <span className="font-bold">{post.user.github_id}</span>
-                          <span className="ml-5">10分前</span>
+                          <span className="font-bold">{post.user.name}</span>
+                          <span className="ml-5">{post.created_at}</span>
                         </div>
-                        {post.content}
+                        <div className="break-all">{post.content}</div>
                       </div>
                     </div>
                   )):''}

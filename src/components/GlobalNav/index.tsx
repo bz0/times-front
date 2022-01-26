@@ -15,6 +15,15 @@ function classNames(...classes:any) {
   return classes.filter(Boolean).join(' ')
 }
 
+axios.interceptors.response.use(response => {
+  return response;
+}, error => {
+ if (error.response.status === 401) {
+  //place your reentry code
+ }
+ return error;
+});
+
 export default function GlobalNav() {
 	const [user, setUser] = useState(null)
  
@@ -30,6 +39,8 @@ export default function GlobalNav() {
           },
         }).then(res => {
           setUser(res.data)
+        }).catch(err => {
+          console.log('err:', err);
         });
       }
 	}, [])
