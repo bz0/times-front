@@ -6,12 +6,12 @@ import SideNav from 'src/components/SideNav'
 import React, { useState, useRef } from 'react';
 
 import { useQuery, useMutation, gql } from '@apollo/client';
-import { useEffect } from 'react';
+import { useCallback } from 'react';
 import { isNullableType } from 'graphql';
 
 const POSTS_QUERY = gql`
-  query {
-    posts(first:50, page:1) {
+  query Post($first: Int, $page: Int) {
+    posts(first:$first, page:$page) {
       data{
         id
         user_id
@@ -60,13 +60,32 @@ export interface PostsData {
   }
 }
 
+
+
 const Home: NextPage = () => {
   //const [posts, setPost] = useState('');
   const textRef = useRef(null)
 
-  const { loading, error, data } = useQuery<PostsData>(POSTS_QUERY);
-  const posts = data?.posts.data;
-  console.log("posts:",posts);
+  const { loading, error, data, fetchMore } = useQuery<PostsData>(POSTS_QUERY, {
+    variables: {
+      first: 100,
+      page: 1
+    }
+  });
+
+  const nextPage = useCallback(
+    (pageInfo) => {
+      fetchMore({
+        variables: {
+          first: 100,
+          page: pageInfo
+        },
+      });
+    },
+    [fetchMore]
+  );
+
+  const posts = data?.posts.data
 
   return (
     <>
@@ -88,18 +107,48 @@ const Home: NextPage = () => {
             </div>
 
             <div className="bg-white shadow overflow-hidden sm:rounded-lg w-full">
-              <div className="px-4 py-5 sm:px-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 flex">
+              <div className="px-4 py-2 sm:px-6">
+                <h3 className="leading-6 font-medium text-gray-900 flex">
                   <div className="my-auto"><FaList /></div>
                   <div className="my-auto ml-2">分報</div>
-                  <p className="ml-10 my-auto max-w-2xl text-sm text-gray-500">勉強したことや個人サービス開発の進捗等の投稿</p>
+                  <p className="ml-10 my-auto max-w-2xl text-sm text-gray-500">個人開発の進捗等の投稿</p>
+
+                  <div className="flex ml-auto">
+                    <a href="#" className="flex items-center justify-center px-4 py-2 mx-1 text-gray-500 capitalize bg-white rounded-md cursor-not-allowed dark:bg-gray-900 dark:text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+
+                    <a href="#" onClick={() => nextPage(1)} className="hidden px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md sm:inline dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200">
+                        1
+                    </a>
+
+                    <a href="#" onClick={() => nextPage(2)} className="hidden px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md sm:inline dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200">
+                        2
+                    </a>
+
+                    <a href="#" className="hidden px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md sm:inline dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200">
+                        3
+                    </a>
+
+                    <a href="#" className="hidden px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md sm:inline dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200">
+                        4
+                    </a>
+
+                    <a href="#" className="flex items-center justify-center px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </a>
+                  </div>
                 </h3>
               </div>
 
               <div className="border-t border-gray-200">
                 <div>
                   {posts ? posts.map((post:Post, index:number) => (
-                    <div className="px-4 py-5 sm:px-6 flex justify-start" key={index}>
+                    <div className="px-4 py-5 sm:px-6 flex justify-start border-gray-200 border-b-1" key={index}>
                       <div className="text-sm font-medium text-gray-500 w-1/12">
                         <img
                           src={post.user.avatar_url}
