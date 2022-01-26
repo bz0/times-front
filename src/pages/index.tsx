@@ -1,40 +1,68 @@
 import type { NextPage } from 'next'
 import { FaList } from 'react-icons/fa';
+import { FiAlertCircle } from 'react-icons/fi';
 import GlobalNav from 'src/components/GlobalNav'
 import SideNav from 'src/components/SideNav'
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { useEffect } from 'react';
+import { isNullableType } from 'graphql';
 
-const POST_CREATE = gql`
-  mutation {
-    createPost(input: { $userid: Int, $content: String }) {
-      user_id
-      content
+const POSTS_QUERY = gql`
+  query {
+    posts(first:50, page:1) {
+      data{
+        id
+        user_id
+        content
+        user {
+          github_id
+          avatar_url
+          bio
+        }
+      }
+      paginatorInfo{
+        total
+      }
     }
   }
 `;
 
-interface PostInventory {
+export interface Post {
+  id: string;
+  user_id: string;
   content: string;
+  user: {
+    github_id: string;
+    avatar_url: string;
+    bio: string;
+  }
 }
 
-interface NewPostDetails {
-  content: string;
+export interface UpdatePostData {
+  post: Post;
+}
+
+export interface PostInputType {
+  params: {
+    content?: string;
+  };
+}
+
+export interface PostsData {
+  posts: {
+      data: Post[];
+  }
 }
 
 const Home: NextPage = () => {
-  const [content, setContent] = useState('');
+  //const [posts, setPost] = useState('');
+  const textRef = useRef(null)
 
-  const postCreate = () => {
-    const [savePost, { error, data }] = useMutation<
-      { savePost: PostInventory },
-      { post: NewPostDetails }
-    >(POST_CREATE, {
-        variables: { content: content  },
-    });
-  }
+  const { loading, error, data } = useQuery<PostsData>(POSTS_QUERY);
+  const posts = data?.posts.data;
+  console.log("posts:",posts);
 
   return (
     <>
@@ -46,10 +74,10 @@ const Home: NextPage = () => {
           <div className="ml-10 w-full">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5">
               <div className="px-4 py-2 pt-5 sm:px-6 w-full">
-                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" onChange={e => setContent(e.target.value)}></textarea>
+                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" ref={textRef}></textarea>
               </div>
               <div className="px-4 py-2 sm:px-6 w-full flex justify-end">
-                <button onclick={postCreate} className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
+                <button className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
                   投稿する
                 </button>
               </div>
@@ -66,44 +94,24 @@ const Home: NextPage = () => {
 
               <div className="border-t border-gray-200">
                 <div>
-                  <div className="px-4 py-5 sm:px-6 flex justify-start">
-                    <div className="text-sm font-medium text-gray-500">
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src=""
-                        alt=""
-                      />
-                    </div>
-                    <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 ml-10">
-                      <div className="text-sm text-gray-900">
-                        <span className="font-bold">bz0</span>
-                        <span className="ml-5">10分前</span>
+                  {posts ? posts.map((post:Post, index:number) => (
+                    <div className="px-4 py-5 sm:px-6 flex justify-start" key={index}>
+                      <div className="text-sm font-medium text-gray-500">
+                        <img
+                          className="h-8 w-8 rounded-full"
+                          src={post.user.avatar_url}
+                          alt={post.user.github_id}
+                        />
                       </div>
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ
-                    </div>
-                  </div>
-                  <div className="px-4 py-5 sm:px-6 flex justify-start">
-                    <div className="text-sm font-medium text-gray-500">
-                      <img
-                        className="h-8 w-8 rounded-full"
-                        src=""
-                        alt=""
-                      />
-                    </div>
-                    <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 ml-10">
-                      <div className="text-sm text-gray-900">
-                        <span className="font-bold">bz0</span>
-                        <span className="ml-5">10分前</span>
+                      <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 ml-10">
+                        <div className="text-sm text-gray-900">
+                          <span className="font-bold">{post.user.github_id}</span>
+                          <span className="ml-5">10分前</span>
+                        </div>
+                        {post.content}
                       </div>
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ<br />
-                      ああああああああああああああああああああああああああああああああああ
                     </div>
-                  </div>
+                  )):''}
                 </div>
               </div>
             </div>
