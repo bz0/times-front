@@ -7,7 +7,8 @@ import React, { useState, useRef } from 'react';
 
 import { useQuery, useMutation, gql } from '@apollo/client';
 import { useCallback } from 'react';
-import { isNullableType } from 'graphql';
+import ReactPaginate from 'react-paginate';
+import { userVar } from '../graphql/variables/variables'
 
 const POSTS_QUERY = gql`
   query Post($first: Int, $page: Int) {
@@ -26,7 +27,22 @@ const POSTS_QUERY = gql`
       }
       paginatorInfo{
         total
+        currentPage
+        lastPage
+        hasMorePages
       }
+    }
+  }
+`;
+
+export const CREATE_POST = gql`
+  mutation CreatePost($user_id: ID, $content: String!) {
+    createPost(input: {
+      user_id: $user_id,
+      content: $content
+    }) {
+      user_id
+      content
     }
   }
 `;
@@ -57,14 +73,21 @@ export interface PostInputType {
 export interface PostsData {
   posts: {
       data: Post[];
+      paginatorInfo: {
+        total: number;
+        currentPage: number;
+        lastPage: number;
+        hasMorePages: number;
+      }
   }
 }
 
-
-
 const Home: NextPage = () => {
-  //const [posts, setPost] = useState('');
-  const textRef = useRef(null)
+  const [content, setContent] = React.useState('');
+  const handleChange = (event: any) => {
+    setContent(event.target.value);
+    console.log("event:",event.target.value)
+  }
 
   const { loading, error, data, fetchMore } = useQuery<PostsData>(POSTS_QUERY, {
     variables: {
@@ -73,12 +96,15 @@ const Home: NextPage = () => {
     }
   });
 
+  const [createPost, { loading_cP, error_cP }] = useMutation(CREATE_POST);
+
   const nextPage = useCallback(
     (pageInfo) => {
+      console.log("page", pageInfo['selected']);
       fetchMore({
         variables: {
           first: 100,
-          page: pageInfo
+          page: pageInfo['selected'] + 1
         },
       });
     },
@@ -86,6 +112,11 @@ const Home: NextPage = () => {
   );
 
   const posts = data?.posts.data
+  const currentPage = data?.posts.paginatorInfo.currentPage
+  const hasMorePages = data?.posts.paginatorInfo.hasMorePages
+  const lastPage = data?.posts.paginatorInfo.lastPage
+  const user = userVar();
+  console.log(user)
 
   return (
     <>
@@ -97,10 +128,10 @@ const Home: NextPage = () => {
           <div className="ml-10 w-full">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5">
               <div className="px-4 py-2 pt-5 sm:px-6 w-full">
-                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" ref={textRef}></textarea>
+                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" onChange={handleChange}></textarea>
               </div>
               <div className="px-4 py-2 sm:px-6 w-full flex justify-end">
-                <button className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
+                <button onClick={() => createPost({ variables: { user_id: user.id, content:content } })} className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
                   投稿する
                 </button>
               </div>
@@ -144,6 +175,27 @@ const Home: NextPage = () => {
                   </div>
                 </h3>
               </div>
+
+              <ReactPaginate
+                pageCount={lastPage} //総ページ数。今回は一覧表示したいデータ数 / 1ページあたりの表示数としてます。
+                marginPagesDisplayed={3} //先頭と末尾に表示するページの数。今回は2としたので1,2…今いるページの前後…後ろから2番目, 1番目 のように表示されます。
+                pageRangeDisplayed={5} //上記の「今いるページの前後」の番号をいくつ表示させるかを決めます。
+                onPageChange={nextPage} //ページネーションのリンクをクリックしたときのイベント(詳しくは下で解説します)
+                containerClassName='flex ml-auto' //ページネーションリンクの親要素のクラス名
+                pageClassName='page-item' //各子要素(li要素)のクラス名
+                pageLinkClassName='px-4 py-2 mx-1 text-gray-700 transition-colors duration-200 transform bg-white rounded-md sm:inline dark:bg-gray-900 dark:text-gray-200 hover:bg-blue-500 dark:hover:bg-blue-500 hover:text-white dark:hover:text-gray-200' //ページネーションのリンクのクラス名
+                activeClassName='active' //今いるページ番号のクラス名。今いるページの番号だけ太字にしたりできます 
+                previousLabel='<svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>' //前のページ番号に戻すリンクのテキスト
+                nextLabel='>' //次のページに進むボタンのテキスト
+                previousClassName='flex items-center justify-center px-4 py-2 mx-1 text-gray-500 capitalize bg-white rounded-md dark:bg-gray-900 dark:text-gray-600' // '<'の親要素(li)のクラス名
+                nextClassName='flex items-center justify-center px-4 py-2 mx-1 text-gray-500 capitalize bg-white rounded-md cursor-not-allowed dark:bg-gray-900 dark:text-gray-600' //'>'の親要素(li)のクラス名
+                previousLinkClassName='page-link'  //'<'のリンクのクラス名
+                nextLinkClassName='page-link'//'>'のリンクのクラス名
+                disabledClassName='cursor-not-allowed' //先頭 or 末尾に行ったときにそれ以上戻れ(進め)なくするためのクラス
+                breakLabel='...' // ページがたくさんあるときに表示しない番号に当たる部分をどう表示するか
+                breakClassName='page-item' // 上記の「…」のクラス名
+                breakLinkClassName='page-link' // 「…」の中のリンクにつけるクラス
+              />
 
               <div className="border-t border-gray-200">
                 <div>

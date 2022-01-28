@@ -1,10 +1,12 @@
 import 'tailwindcss/tailwind.css'
 import type { AppProps } from 'next/app'
+import { parseCookies } from 'nookies'
 
 import {
   ApolloClient,
   InMemoryCache,
-  ApolloProvider
+  ApolloProvider,
+  HttpLink
 } from "@apollo/client";
 
 const cache = new InMemoryCache({
@@ -25,7 +27,12 @@ const cache = new InMemoryCache({
 });
 
 const client = new ApolloClient({
-  uri: 'https://' + process.env.NEXT_PUBLIC_API_DOMAIN + '/graphql',
+  link: new HttpLink({
+    uri: 'https://' + process.env.NEXT_PUBLIC_API_DOMAIN + '/graphql',
+    headers: {
+      authorization: 'Bearer ' + parseCookies()['api_token'],
+    },
+  }),
   cache: cache
 });
 

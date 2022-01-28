@@ -5,6 +5,7 @@ import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { BsGithub } from "react-icons/bs";
 import axios from 'axios'
 import { parseCookies } from 'nookies'
+import { userVar } from '../../graphql/variables/variables'
 
 const login = async () => {
   const { data } = await axios.get(`https://` + process.env.NEXT_PUBLIC_API_DOMAIN + `/api/login/github`);
@@ -14,15 +15,6 @@ const login = async () => {
 function classNames(...classes:any) {
   return classes.filter(Boolean).join(' ')
 }
-
-axios.interceptors.response.use(response => {
-  return response;
-}, error => {
- if (error.response.status === 401) {
-  //place your reentry code
- }
- return error;
-});
 
 export default function GlobalNav() {
 	const [user, setUser] = useState(null)
@@ -39,6 +31,7 @@ export default function GlobalNav() {
           },
         }).then(res => {
           setUser(res.data)
+          userVar(res.data)
         }).catch(err => {
           console.log('err:', err);
         });
