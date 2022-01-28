@@ -80,6 +80,7 @@ export interface PostsData {
 
 const Home: NextPage = () => {
   const [content, setContent] = React.useState('');
+
   const handleChange = (event: any) => {
     setContent(event.target.value);
     console.log("event:",event.target.value)
@@ -94,7 +95,8 @@ const Home: NextPage = () => {
 
   const [createPost, { loading_cP, error_cP }] = useMutation(CREATE_POST,{
     onCompleted() {
-      refetch();
+      refetch()
+      setContent('')
     },
   });
 
@@ -115,6 +117,7 @@ const Home: NextPage = () => {
   const currentPage = data?.posts.paginatorInfo.currentPage
   const hasMorePages = data?.posts.paginatorInfo.hasMorePages
   const lastPage = data?.posts.paginatorInfo.lastPage
+  const user = userVar();
   console.log(posts)
 
   return (
@@ -127,7 +130,7 @@ const Home: NextPage = () => {
           <div className="ml-10 w-full">
             <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5">
               <div className="px-4 py-2 pt-5 sm:px-6 w-full">
-                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" onChange={handleChange}></textarea>
+                <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" onChange={handleChange} value={content} />
               </div>
               <div className="px-4 py-2 sm:px-6 w-full flex justify-end">
                 <button onClick={() => createPost({ variables: { user_id: user.id, content:content } })} className="px-6 py-2 font-medium tracking-wide text-white capitalize transition-colors duration-200 transform bg-blue-600 rounded-md hover:bg-blue-500 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-80">
