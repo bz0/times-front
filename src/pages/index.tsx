@@ -5,7 +5,7 @@ import GlobalNav from 'src/components/GlobalNav'
 import SideNav from 'src/components/SideNav'
 import React, { useState, useRef } from 'react';
 
-import { useQuery, useMutation, gql } from '@apollo/client';
+import { useQuery, useMutation, gql, useApolloClient } from '@apollo/client';
 import { useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 import { userVar } from '../graphql/variables/variables'
@@ -20,8 +20,8 @@ const POSTS_QUERY = gql`
         created_at
         user {
           name
-          github_id
           avatar_url
+          github_id
           bio
         }
       }
@@ -48,7 +48,7 @@ export const CREATE_POST = gql`
 `;
 
 export interface Post {
-  id: string;
+  id: Number;
   user_id: string;
   content: string;
   created_at: string;
@@ -58,10 +58,6 @@ export interface Post {
     avatar_url: string;
     bio: string;
   }
-}
-
-export interface UpdatePostData {
-  post: Post;
 }
 
 export interface PostInputType {
@@ -89,14 +85,18 @@ const Home: NextPage = () => {
     console.log("event:",event.target.value)
   }
 
-  const { loading, error, data, fetchMore } = useQuery<PostsData>(POSTS_QUERY, {
+  const { loading, error, data, fetchMore, refetch } = useQuery<PostsData>(POSTS_QUERY, {
     variables: {
       first: 100,
       page: 1
     }
   });
 
-  const [createPost, { loading_cP, error_cP }] = useMutation(CREATE_POST);
+  const [createPost, { loading_cP, error_cP }] = useMutation(CREATE_POST,{
+    onCompleted() {
+      refetch();
+    },
+  });
 
   const nextPage = useCallback(
     (pageInfo) => {
@@ -115,8 +115,7 @@ const Home: NextPage = () => {
   const currentPage = data?.posts.paginatorInfo.currentPage
   const hasMorePages = data?.posts.paginatorInfo.hasMorePages
   const lastPage = data?.posts.paginatorInfo.lastPage
-  const user = userVar();
-  console.log(user)
+  console.log(posts)
 
   return (
     <>
