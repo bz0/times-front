@@ -1,6 +1,7 @@
 import 'tailwindcss/tailwind.css'
 import type { AppProps } from 'next/app'
 import { parseCookies } from 'nookies'
+import { Layout } from '../components/Layout'
 
 import {
   ApolloClient,
@@ -39,7 +40,9 @@ const client = new ApolloClient({
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ApolloProvider client={client}>
-      <Component {...pageProps} />
+      <Layout>
+        <Component {...pageProps} />
+      </Layout>
     </ApolloProvider>
   )
 }
