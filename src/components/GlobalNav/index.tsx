@@ -5,7 +5,7 @@ import { BellIcon, MenuIcon, XIcon } from '@heroicons/react/outline'
 import { BsGithub } from "react-icons/bs";
 import axios from 'axios'
 import { parseCookies } from 'nookies'
-import { userVar } from '../../graphql/post/variables/variables'
+import { userVar } from '../../graphql/variables/variables'
 
 const login = async () => {
   const { data } = await axios.get(`https://` + process.env.NEXT_PUBLIC_API_DOMAIN + `/api/login/github`);
