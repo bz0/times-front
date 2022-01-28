@@ -1,82 +1,15 @@
 import type { NextPage } from 'next'
 import { FaList } from 'react-icons/fa';
-import { FiAlertCircle } from 'react-icons/fi';
 import GlobalNav from 'src/components/GlobalNav'
 import SideNav from 'src/components/SideNav'
-import React, { useState, useRef } from 'react';
+import React, { useCallback } from 'react';
+import ReactPaginate from 'react-paginate';
 
 import { useQuery, useMutation, gql, useApolloClient } from '@apollo/client';
-import { useCallback } from 'react';
-import ReactPaginate from 'react-paginate';
 import { userVar } from '../graphql/variables/variables'
-
-const POSTS_QUERY = gql`
-  query Post($first: Int, $page: Int) {
-    posts(first:$first, page:$page) {
-      data{
-        id
-        user_id
-        content
-        created_at
-        user {
-          name
-          avatar_url
-          github_id
-          bio
-        }
-      }
-      paginatorInfo{
-        total
-        currentPage
-        lastPage
-        hasMorePages
-      }
-    }
-  }
-`;
-
-export const CREATE_POST = gql`
-  mutation CreatePost($user_id: ID, $content: String!) {
-    createPost(input: {
-      user_id: $user_id,
-      content: $content
-    }) {
-      user_id
-      content
-    }
-  }
-`;
-
-export interface Post {
-  id: Number;
-  user_id: string;
-  content: string;
-  created_at: string;
-  user: {
-    name: string;
-    github_id: string;
-    avatar_url: string;
-    bio: string;
-  }
-}
-
-export interface PostInputType {
-  params: {
-    content?: string;
-  };
-}
-
-export interface PostsData {
-  posts: {
-      data: Post[];
-      paginatorInfo: {
-        total: number;
-        currentPage: number;
-        lastPage: number;
-        hasMorePages: number;
-      }
-  }
-}
+import { CREATE_POST, PostInputType } from '../graphql/post/mutations/createPostMutation'
+import { POSTS_QUERY } from '../graphql/post/queries/postQuery'
+import { Post, PostsData } from '../graphql/post/post'
 
 const Home: NextPage = () => {
   const [content, setContent] = React.useState('');
