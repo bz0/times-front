@@ -6,7 +6,7 @@ import React, { useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 
 import { useQuery, useMutation, gql, useApolloClient } from '@apollo/client';
-import { userVar } from '../graphql/variables/variables'
+import { userVar } from '../graphql/post/variables/variables'
 import { CREATE_POST, PostInputType } from '../graphql/post/mutations/createPostMutation'
 import { POSTS_QUERY } from '../graphql/post/queries/postQuery'
 import { Post, PostsData } from '../graphql/post/post'
