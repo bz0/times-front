@@ -6,13 +6,18 @@ import React, { useCallback } from 'react';
 import ReactPaginate from 'react-paginate';
 
 import { useQuery, useMutation, gql, useApolloClient } from '@apollo/client';
-import { userVar } from '../graphql/variables/variables'
-import { CREATE_POST, PostInputType } from '../graphql/post/mutations/createPostMutation'
-import { POSTS_QUERY } from '../graphql/post/queries/postQuery'
-import { Post, PostsData } from '../graphql/post/post'
+import { userVar } from '../../graphql/variables/variables'
+import { CREATE_POST, PostInputType } from '../../graphql/post/mutations/createPostMutation'
+import { POSTS_QUERY } from '../../graphql/post/queries/postQuery'
+import { Post, PostsData } from '../../graphql/post/post'
+import { useRouter } from "next/router";
 
-const Home: NextPage = () => {
+
+
+const Profile: NextPage = () => {
   const [content, setContent] = React.useState('');
+  const router = useRouter();
+  console.log(router.query)
 
   const handleChange = (event: any) => {
     setContent(event.target.value);
@@ -22,7 +27,8 @@ const Home: NextPage = () => {
   const { loading, error, data, fetchMore, refetch } = useQuery<PostsData>(POSTS_QUERY, {
     variables: {
       first: 100,
-      page: 1
+      page: 1,
+      user_id: router.query?.user_id
     }
   });
 
@@ -133,4 +139,4 @@ const Home: NextPage = () => {
   )
 }
 
-export default Home
+export default Profile
