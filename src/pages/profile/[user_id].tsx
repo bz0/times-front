@@ -25,7 +25,7 @@ const ProfileCard: NextPage = () => {
 
   return (
     <>
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5 w-80">
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5 w-80 mx-auto">
           <div className="px-4 py-2 pt-5 sm:px-6 w-full">
             <img
               className="h-16 w-16 rounded-full border-gray-200 border mx-auto"
@@ -71,7 +71,7 @@ const Profile: NextPage = () => {
 
   return (
     <>
-      <div className="ml-10 w-full">
+      <div className="ml-10 w-full mb-5">
         <ProfileCard />
 
         <div className="bg-white shadow overflow-hidden sm:rounded-lg w-full">

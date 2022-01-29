@@ -55,8 +55,8 @@ const Home: NextPage = () => {
 
   return (
     <>
-        <div className="ml-10 w-full">
-          <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-5">
+        <div className="ml-10 w-full mb-5">
+          <div className="bg-white shadow overflow-hidden sm:rounded-lg">
             <div className="px-4 py-2 pt-5 sm:px-6 w-full">
               <textarea className="w-full block w-full h-40 px-4 py-2 text-gray-700 bg-white border" onChange={handleChange} value={content} />
             </div>
@@ -104,10 +104,12 @@ const Home: NextPage = () => {
                 {posts ? posts.map((post:Post, index:number) => (
                   <div className="px-4 py-5 sm:px-6 flex justify-start border-gray-200 border-b-1" key={index}>
                     <div className="text-sm font-medium text-gray-500 w-1/12">
-                      <img
-                        src={post.user.avatar_url}
-                        className="w-10 rounded-full"
-                      />
+                      <a href={"/profile/" + post.user.id}>
+                        <img
+                          src={post.user.avatar_url}
+                          className="w-10 rounded-full"
+                        />
+                      </a>
                     </div>
                     <div className="text-sm text-gray-900 sm:mt-0 sm:col-span-2 w-11/12">
                       <div className="text-sm text-gray-900">
