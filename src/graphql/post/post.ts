@@ -4,6 +4,7 @@ export interface Post {
     content: string;
     created_at: string;
     user: {
+      id: Number;
       name: string;
       github_id: string;
       avatar_url: string;

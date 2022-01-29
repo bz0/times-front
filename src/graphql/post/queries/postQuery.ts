@@ -9,6 +9,7 @@ export const POSTS_QUERY = gql`
         content
         created_at
         user {
+          id
           name
           avatar_url
           github_id
